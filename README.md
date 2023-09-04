@@ -1,8 +1,11 @@
 # NN-CA1-McCullochPitts-Adaline-Madaline-AutoEncoders-MLPS
 
-Neural Networks & Deep Learning Course, University of Tehran
+### 1. McCulloch-Pitts Neural Network [Link](#Part-1-McCulloch-Pitts-Neural-Network)
+### 2. Adaline and Madaline Networks [Link](#Part-2-Adaline-and-Madaline-Networks)
+### 3. Implementing LMAE for Classification (Based on LMAE Article) [Link](#Part-3-Implementing-LMAE-for-Classification)
+### 4. Multi-Layer Perceptron [Link](#Part-4-Multi-LayerPerceptron)
 
-## Part 1: McCulloch-Pitts Neural Network
+# Part 1: McCulloch-Pitts Neural Network
 
 In this section, we'll explore the state transition table associated with the McCulloch-Pitts neuron network. It's important to note that in all neurons, there will be three columns on the left side of the table, representing inputs. Each of the right-side columns corresponds to the output of a neuron.
 
@@ -10,7 +13,7 @@ To simplify the process, we'll start by plotting the truth table for each neuron
 
 We define the network as a Python class that takes weights as a two-dimensional matrix. In the future, by providing an array of inputs, it returns the network's final output using suitable matrix multiplication and comparing the outputs with a threshold.
 
-## Part 2: Adaline and Madaline Networks
+# Part 2: Adaline and Madaline Networks
 
 ### Adaline (1-2)
 
@@ -38,7 +41,7 @@ Figure 22 illustrates the number of epochs for three models (3, 4, and 10 neuron
 
 For the number of epochs, the model with three neurons could not satisfy the condition of weight non-change, and it finished with the second condition, which was a maximum of 300 epochs. But the model with four neurons reached the condition of weight non-change with 16 epochs, and the model with ten neurons reached it with 44 epochs, as shown in the figure.
 
-## Part 3: Implementing LMAE for Classification (Based on LMAE Article)
+# Part 3: Implementing LMAE for Classification
 
 ### Introduction and Data Preprocessing
 
@@ -60,7 +63,7 @@ Finally, we write a function for classification. Given input in the original spa
 
 Due to the good accuracy of the classifier, most data points are located on the main diagonal of the confusion matrix, indicating correct classification. However, upon closer examination of misclassifications, we find interesting results. For example, digits 4 and 9, which share some similarities, are frequently confused with each other.
 
-## Part 4: Multi-Layer Perceptron
+# Part 4: Multi-Layer Perceptron
 
 In this section, we will cover the data preprocessing steps, including data exploration, cleaning, feature engineering, and model evaluation. We will also delve into the results obtained from various models.
 
