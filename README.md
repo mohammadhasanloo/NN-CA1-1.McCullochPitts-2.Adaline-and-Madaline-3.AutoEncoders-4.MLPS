@@ -3,7 +3,7 @@
 ### 1. McCulloch-Pitts Neural Network [Link](#Part-1-McCulloch-Pitts-Neural-Network)
 ### 2. Adaline and Madaline Networks [Link](#Part-2-Adaline-and-Madaline-Networks)
 ### 3. Implementing LMAE for Classification (Based on LMAE Article) [Link](#Part-3-Implementing-LMAE-for-Classification)
-### 4. Multi-Layer Perceptron [Link](#Part-4-Multi-LayerPerceptron)
+### 4. Multi-Layer Perceptron [Link](#Part-4-Multi-Layer-Perceptron)
 
 # Part 1: McCulloch-Pitts Neural Network
 
