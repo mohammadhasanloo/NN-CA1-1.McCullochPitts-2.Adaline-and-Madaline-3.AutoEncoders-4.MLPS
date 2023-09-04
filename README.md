@@ -38,9 +38,11 @@ Figure 22 illustrates the number of epochs for three models (3, 4, and 10 neuron
 
 For the number of epochs, the model with three neurons could not satisfy the condition of weight non-change, and it finished with the second condition, which was a maximum of 300 epochs. But the model with four neurons reached the condition of weight non-change with 16 epochs, and the model with ten neurons reached it with 44 epochs, as shown in the figure.
 
-## Part 3: Auto-Encoders for Classification
+## Part 3: Implementing LMAE for Classification (Based on LMAE Article)
 
 ### Introduction and Data Preprocessing
+
+In this section, we will implement the code based on the research article titled "LMAE: A large margin Auto-Encoders for classification" available at [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0165168417302013).
 
 To begin with, we load the data using the Keras library and plot the desired graphs based on the labels of the training data.
 
