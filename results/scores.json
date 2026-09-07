@@ -1,0 +1,17 @@
+{
+  "separable": {
+    "adaline": 1.0,
+    "madaline_and": 1.0,
+    "madaline_or": 1.0
+  },
+  "concentric": {
+    "adaline": 0.5,
+    "madaline_and": 1.0,
+    "madaline_or": 0.5
+  },
+  "xor": {
+    "adaline": 0.5,
+    "madaline_and": 0.5,
+    "madaline_or": 0.79
+  }
+}

@@ -1,110 +1,129 @@
-# NN-CA1-McCullochPitts-Adaline-Madaline-AutoEncoders-MLPS
+# Classical Neural Networks
 
-### 1. McCulloch-Pitts Neural Network [Link](#Part-1-McCulloch-Pitts-Neural-Network)
-### 2. Adaline and Madaline Networks [Link](#Part-2-Adaline-and-Madaline-Networks)
-### 3. Implementing LMAE for Classification (Based on LMAE Article) [Link](#Part-3-Implementing-LMAE-for-Classification)
-### 4. Multi-Layer Perceptron [Link](#Part-4-Multi-Layer-Perceptron)
+Three of the models that came before backpropagation, implemented from scratch:
+the McCulloch-Pitts threshold neuron, Adaline, and Madaline. Each is a step in
+what a network can represent, and the point of putting them side by side is to
+see exactly where each one stops.
 
-# Part 1: McCulloch-Pitts Neural Network
+![Adaline and both Madaline votes on the concentric problem](docs/concentric.png)
 
-In this section, we'll explore the state transition table associated with the McCulloch-Pitts neuron network. It's important to note that in all neurons, there will be three columns on the left side of the table, representing inputs. Each of the right-side columns corresponds to the output of a neuron.
+## Requirements
 
-To simplify the process, we'll start by plotting the truth table for each neuron's output.
+Python 3.10 or later. numpy for the models, matplotlib for the figures.
 
-We define the network as a Python class that takes weights as a two-dimensional matrix. In the future, by providing an array of inputs, it returns the network's final output using suitable matrix multiplication and comparing the outputs with a threshold.
+## Installation
 
-# Part 2: Adaline and Madaline Networks
+```bash
+pip install -e .
+```
 
-### Adaline (1-2)
+With the test suite:
 
-- Create two matrices: the first one is 1x100 with a mean of 0 and a standard deviation of 0.1. The second one is 1x100 with a mean of 0 and a standard deviation of 0.4.
+```bash
+pip install -e ".[dev]"
+```
 
-- Create another two matrices: the first one is 2x100 with a mean of 1 and a standard deviation of 0.2. The second one is 2x100 with a mean of 0 and a standard deviation of 0.2.
+## Demo
 
-In Figure 9, you can see that the defined datasets can be separated with a single adaline line and even, based on this figure, it's possible to bring the loss close to zero (depending on how you define the loss).
+```bash
+python -m classic_nets.demo
+```
 
-### Adaline (2-2)
+Fits every model on every problem, writing one figure per problem to `docs/` and
+the scores to `results/scores.json`.
 
-- In this section, we define an Adaline model with two inputs and one output, similar to the previous part. Since the data is not correlated, and there is no distribution, and the data from each group is not clustered together in different parts of space, we can effectively separate the data using Adaline.
+## Results
 
-As seen in the figure, the second dataset has more spread and is closer together, making it impossible to separate all the data from each other with a single adaline. Therefore, we need models that perform better than Adaline, meaning we need to find Madaline models.
+Accuracy on three two-dimensional problems, 8 hidden units, seed 0.
 
-### Madaline
+| problem | Adaline | Madaline, AND | Madaline, OR |
+| --- | --- | --- | --- |
+| linearly separable | 1.00 | 1.00 | 1.00 |
+| concentric rings | 0.50 | **1.00** | 0.50 |
+| XOR | 0.50 | 0.50 | 0.79 |
 
-- In MRI, weights are adjusted for hidden adalines, and you need to learn that. Weights for the output unit are fixed and do not need to be learned in the training process; we fix them according to the problem's needs. While in MRII, a method for setting and learning all weights in the network is considered.
+Two classes throughout, so 0.50 is chance.
 
-As shown in Figure 15, it is evident that a single Adaline cannot separate data from two classes, and we need multiple Adalines, hence the need for Madaline models.
+Every one of those numbers follows from what the architecture can express, and
+none of them is a tuning artefact.
 
-As seen in Figure 16, Madaline with three neurons cannot reduce the error significantly beyond a point because it lacks the necessary power to separate the data from two classes. However, Madaline with four neurons can perform much better, and according to Figure 17, it can even bring the loss to zero. Madaline with ten neurons can also achieve zero loss, as shown in Figure 18. However, it suffers from redundancy, as evident in Figure 21.
+**Adaline is one straight line.** It solves the separable problem exactly and
+sits at chance on the other two. No learning rate or epoch count changes that,
+because no line divides a ring from the disc inside it.
 
-Figure 22 illustrates the number of epochs for three models (3, 4, and 10 neurons).
+**Madaline's vote decides the shape of the region.** Each hidden unit is a
+half-plane. An AND fires only when every unit does, giving their intersection,
+which is convex. An OR gives their union, whose complement is convex. The
+concentric problem has a convex positive class, so the AND vote solves it
+completely and the OR vote cannot touch it. The middle panel above shows the
+intersection directly: a convex polygon closing around the inner disc, one edge
+per hidden unit.
 
-For the number of epochs, the model with three neurons could not satisfy the condition of weight non-change, and it finished with the second condition, which was a maximum of 300 epochs. But the model with four neurons reached the condition of weight non-change with 16 epochs, and the model with ten neurons reached it with 44 epochs, as shown in the figure.
+**Neither vote solves XOR, at any width.** XOR's positive class is two separate
+patches, and neither an intersection of half-planes nor a union of them is two
+patches. Adding hidden units does not help, because the limit is the fixed output
+layer rather than the capacity beneath it. Getting past this is what a trained
+output layer, and backpropagation, are for. A test asserts it fails at 4 and 16
+units under both votes.
 
-# Part 3: Implementing LMAE for Classification
+## The models
 
-### Introduction and Data Preprocessing
+**McCulloch-Pitts, 1943.** No learning at all. Weights and a threshold are chosen
+by hand, and the unit fires when the weighted sum reaches the threshold. It is
+the smallest thing that computes a logical function; `logical_and`,
+`logical_or` and `logical_not` are three lines each, and a test composes them
+into XOR to show that two layers of fixed units already suffice for it.
 
-In this section, we will implement the code based on the research article titled "LMAE: A large margin Auto-Encoders for classification" available at [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0165168417302013).
+**Adaline.** Trained by the Widrow-Hoff rule, which is the whole difference from
+the perceptron: the update uses the error before thresholding rather than after.
+A perceptron learns nothing from a sample it classifies correctly by a hair,
+while Adaline measures the actual distance from the target, giving a smooth
+squared-error surface with a gradient everywhere on it.
 
-To begin with, we load the data using the Keras library and plot the desired graphs based on the labels of the training data.
+**Madaline.** A hidden layer of Adalines under a fixed vote, trained by the MRI
+rule. When the output is wrong, only the units at fault are adjusted, and only
+enough to flip them: where a single unit must change, the one nearest its own
+threshold is chosen as the cheapest.
 
-Next, we randomly visualize five data points. To normalize the inputs, we use max-min normalization, ensuring that all data points fall between 0 and 1. Since the input data consists of black and white images with pixel values ranging from 0 to 255, we can directly divide the data by 255.
+The MRI step is divided by the squared norm of the augmented input. Without that
+the correction scales with the size of the input, so a large sample produces a
+large weight change, a larger activation, and a larger correction again. The
+weights diverge within a few epochs.
 
-### Auto-Encoder Network
+## Project structure
 
-We implement the mentioned network, consisting of Encoder and Decoder, as Sequential models. The Encoder-Auto network is created by connecting these two models. We experiment with various activation functions for the layers and find that the best performance is achieved when using sigmoid for the output layer and Relu-Leaky for the other layers. Since we expect the output to be in the range of 0 to 1, choosing these activation functions makes sense. We train the model for 10 epochs. The results show that the loss curve decreases nicely, and the training process can be stopped. To ensure the correct functioning of the Encoder-Auto network, we visualize the input and output for a few random data points from the test data. We expect the output, reconstructed by the Decoder using the 30 features from the Encoder, to closely resemble the original image.
+```
+classic_nets/
+    mcculloch_pitts.py  the threshold unit and the logic gates
+    adaline.py          the Widrow-Hoff learning rule
+    madaline.py         the hidden layer, the vote, the MRI rule
+    datasets.py         separable, concentric and XOR problems
+    figures.py          decision boundary plots
+    demo.py             the full comparison run
+tests/                  gate behaviour, learning, and representational limits
+docs/                   one figure per problem
+results/                scores from the most recent run
+pyproject.toml          packaging
+```
 
-### Classification
+## Components
 
-We utilize the Encoder from the previous section and project all the training and test data into the 30-dimensional feature space. Then, we implement the classification network as required, with two hidden layers containing 24 and 16 neurons, and an output layer with 10 neurons (since we have 10 classes). The network is trained using the data in the new feature space for 10 epochs. The requested plots show the loss, validation loss, and accuracy during the training process. The classification accuracy after completing the training process is approximately 94.8%.
+| module | responsibility |
+| --- | --- |
+| `mcculloch_pitts` | Fixed threshold units and the gates built from them |
+| `adaline` | A single linear unit and its learning rule |
+| `madaline` | The hidden layer, both votes, and MRI training |
+| `datasets` | Problems chosen to separate the models |
+| `figures` | Drawing a fitted model's decision boundary |
+| `demo` | Fitting everything and writing the artefacts |
 
-Finally, we write a function for classification. Given input in the original space (784 dimensions), it first maps it to the 30-dimensional feature space using the Encoder and then determines its label using the trained classifier. We visualize the outputs of the Encoder and the classifier together for 5 random data points from the test data. We also present a confusion matrix plot to illustrate the classification results.
+## Testing
 
-Due to the good accuracy of the classifier, most data points are located on the main diagonal of the confusion matrix, indicating correct classification. However, upon closer examination of misclassifications, we find interesting results. For example, digits 4 and 9, which share some similarities, are frequently confused with each other.
+```bash
+python -m pytest tests/
+```
 
-# Part 4: Multi-Layer Perceptron
-
-In this section, we will cover the data preprocessing steps, including data exploration, cleaning, feature engineering, and model evaluation. We will also delve into the results obtained from various models.
-
-### 4-1 Data Exploration and Preprocessing
-
-- **Reading CSV and Data Information**: We began by reading the CSV file and inspecting the dataset. It comprises 25 features related to automobiles, with the target variable being the price. Our primary objective is to predict car prices based on these features.
-
-- **Handling Missing Data**: We assessed the dataset for missing values using the `isna` function. Fortunately, no missing data was found in any of the columns.
-
-- **Removing Unnecessary Columns**: Three columns, namely "CarName," "ID_car," and "symboling," were identified as unnecessary for our analysis and were removed.
-
-### 4-2 Data Analysis and Visualization
-
-- **Exploring Correlation**: To understand the relationships between features and the target variable, we computed the correlation matrix. The feature with the highest correlation to car prices was "enginesize," indicating its significance for price prediction.
-
-- **Visualizing Data**:
-  - **Price vs. Engine Size**: A scatter plot revealed a linear relationship between the "enginesize" feature and car prices.
-  - **Price Distribution**: We examined the distribution of car prices, which showed that the dataset is not biased towards luxury cars, as prices span a wide range.
-
-### 4-3 Data Transformation
-
-- **Converting Categorical Data to Numeric**: To prepare the data for modeling, we transformed categorical features into numeric ones using one-hot encoding. This process resulted in the creation of 37 additional columns.
-
-### 4-4 Data Splitting
-
-- **Splitting Data**: We divided the dataset into three sets: training (70% of the data), validation (15%), and test (15%) sets. This splitting allows us to train, tune, and evaluate our models effectively.
-
-### 4-5 Data Scaling
-
-- **Scaling Data**: We applied Min-Max scaling to normalize the feature values, ensuring that all features have similar scales.
-
-### 4-6 Model Selection and Evaluation
-
-- **Selecting Model Architecture**: We experimented with various Multi-Layer Perceptron (MLP) models, varying the number of hidden layers. The models utilized ReLU activation functions for hidden layers and linear activation for the output layer. Dropout layers were added after each hidden layer to mitigate overfitting.
-
-- **Choosing Loss Functions and Optimizers**: We explored different loss functions and optimizers to identify the best combination for our regression problem. The selected loss function was Mean Absolute Percentage Error (MAPE), which suits regression tasks. We tested both Stochastic Gradient Descent (SGD) and Adam optimizers.
-
-### Results
-
-- The "enginesize" feature demonstrated the highest correlation with car prices, making it a key predictor.
-- Price distribution revealed no bias towards luxury cars.
-- Data preprocessing, including one-hot encoding and scaling, prepared the dataset for modeling.
-- Data was effectively split into training, validation, and test sets.
-- Model evaluation revealed that a three-layer MLP with MAPE loss and SGD optimizer achieved the best performance, with a 74% R-squared score.
+Nineteen tests. The gates are checked against their truth tables, XOR is
+composed from three fixed units, Adaline is shown to solve the separable problem
+and fail the concentric one, the AND vote is shown to beat the OR vote where
+convexity says it should, and both are shown to fail XOR at any width.
